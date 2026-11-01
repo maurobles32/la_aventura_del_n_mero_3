@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Aventura del Número 3 - ¡Aprende Matemáticas Jugando!</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fdf4ff',
+                            100: '#fae8ff',
+                            500: '#d946ef',
+                            600: '#c026d3',
+                            700: '#a21caf',
+                            yellow: '#facc15',
+                            orange: '#fb923c',
+                            teal: '#2dd4bf',
+                            blue: '#38bdf8'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Comic Sans MS', 'Bubblegum Sans', 'Quicksand', 'Nunito', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Quicksand', 'Comic Sans MS', sans-serif;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .bouncing {
+            animation: bounce 1.5s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(-5%); animation-timing-function: cubic-bezier(0.8,0,1,1); }
+            50% { transform: none; animation-timing-function: cubic-bezier(0,0,0.2,1); }
+        }
+        .pulse-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .pulse-btn:hover {
+            transform: scale(1.05);
+        }
+        .pulse-btn:active {
+            transform: scale(0.95);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fae8ff;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d946ef;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 min-h-screen text-gray-800 flex flex-col justify-between">
+
+    <!-- TOP HEADER / HUD -->
+    <header class="bg-white/90 backdrop-blur-md shadow-lg py-3 px-4 sm:px-8 sticky top-0 z-50 flex flex-wrap justify-between items-center border-b-4 border-yellow-400">
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="showScreen('home')">
+            <div class="bg-yellow-400 p-2.5 rounded-2xl shadow-md border-2 border-yellow-500 text-2xl bouncing">
+                🦁
+            </div>
+            <div>
+                <h1 class="text-xl sm:text-2xl font-black text-purple-700 tracking-wide drop-shadow-sm">Aventura del 3</h1>
+                <p class="text-xs font-bold text-teal-600">¡Con Tris el Explorador!</p>
+            </div>
+        </div>
+
+        <!-- REWARDS HUD -->
+        <div class="flex items-center space-x-3 sm:space-x-6 my-2 sm:my-0">
+            <div class="flex items-center bg-yellow-100 border-2 border-yellow-400 px-3 py-1.5 rounded-full shadow-inner">
+                <span class="text-xl mr-1.5">⭐</span>
+                <span id="hud-stars" class="font-black text-yellow-700 text-base sm:text-lg">0</span>
+            </div>
+            <div class="flex items-center bg-amber-100 border-2 border-amber-400 px-3 py-1.5 rounded-full shadow-inner">
+                <span class="text-xl mr-1.5">🪙</span>
+                <span id="hud-coins" class="font-black text-amber-700 text-base sm:text-lg">0</span>
+            </div>
+            <div class="flex items-center bg-purple-100 border-2 border-purple-400 px-3 py-1.5 rounded-full shadow-inner">
+                <span class="text-xl mr-1.5">🏆</span>
+                <span id="hud-medals" class="font-black text-purple-700 text-base sm:text-lg">0</span>
+            </div>
+        </div>
+
+        <!-- AUDIO & CONTROLS -->
+        <div class="flex items-center space-x-2">
+            <button onclick="toggleAudio()" id="audio-btn" class="bg-purple-100 hover:bg-purple-200 text-purple-700 p-2.5 rounded-xl border-2 border-purple-300 transition shadow-md" title="Activar/Desactivar Sonidos">
+                🔊
+            </button>
+            <button onclick="toggleSpeech()" id="speech-btn" class="bg-teal-100 hover:bg-teal-200 text-teal-700 p-2.5 rounded-xl border-2 border-teal-300 transition shadow-md" title="Voz Activada/Desactivada">
+                🗣️
+            </button>
+            <button onclick="showScreen('shop')" class="bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-white font-bold px-3 py-2 rounded-xl shadow-md border-2 border-yellow-500 transition flex items-center space-x-1">
+                <span>🎒</span>
+                <span class="hidden sm:inline">Tienda</span>
+            </button>
+            <button onclick="showScreen('stats')" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 p-2.5 rounded-xl border-2 border-indigo-300 transition shadow-md" title="Progreso y Estadísticas">
+                📊
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN APP CONTAINER -->
+    <main class="flex-grow flex items-center justify-center p-4 sm:p-6 max-w-6xl mx-auto w-full">
+
+        <!-- SCREEN 1: HOME / MENU -->
+        <div id="screen-home" class="screen w-full flex flex-col items-center animate-fade">
+            <!-- Mascot banner -->
+            <div class="bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-2xl border-4 border-yellow-400 max-w-3xl w-full text-center relative overflow-hidden mb-6">
+                <div class="absolute -right-6 -bottom-6 text-8xl opacity-10">🦁</div>
+                <div class="inline-block bg-yellow-300 text-yellow-900 font-extrabold px-4 py-1.5 rounded-full text-sm sm:text-base mb-3 shadow-sm border border-yellow-400">
+                    ✨ ¡Misión Matemática Nivel 7 Años! ✨
+                </div>
+                <h2 class="text-3xl sm:text-5xl font-black text-purple-700 mb-3 drop-shadow">¡La Aventura del Número 3!</h2>
+                <p class="text-gray-600 text-base sm:text-lg mb-6">Únete a Tris el leoncito explorador y conviértete en el gran Maestro de las Tablas y las Divisiones.</p>
+                
+                <!-- Mascot speech bubble -->
+                <div class="bg-purple-50 border-2 border-purple-200 rounded-2xl p-4 inline-flex items-center space-x-3 shadow-inner mb-2">
+                    <span class="text-4xl bouncing">🦁</span>
+                    <p class="text-purple-800 font-bold text-sm sm:text-base text-left">"¡Hola amigo! Elige una misión abajo para empezar a ganar estrellas y monedas mágicas."</p>
+                </div>
+            </div>
+
+            <!-- MODULE GRID -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl w-full">
+                <!-- Mod 1 -->
+                <div onclick="startModule(1)" class="pulse-btn bg-white rounded-3xl p-6 shadow-xl border-4 border-pink-400 cursor-pointer flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-pink-400 text-white font-black px-4 py-1 rounded-bl-2xl text-sm">Módulo 1</div>
+                    <div>
+                        <div class="text-5xl mb-3">🔢</div>
+                        <h3 class="text-xl font-black text-purple-700 mb-2">La Tabla del 3</h3>
+                        <p class="text-gray-500 text-sm mb-4">Aprende de 3x1 a 3x10 con sumas repetidas y gráficos divertidos.</p>
+                    </div>
+                    <div class="bg-pink-100 text-pink-700 font-bold py-2 px-4 rounded-xl text-center group-hover:bg-pink-500 group-hover:text-white transition">
+                        ¡Aprender Ahora! 🚀
+                    </div>
+                </div>
+
+                <!-- Mod 2 -->
+                <div onclick="startModule(2)" class="pulse-btn bg-white rounded-3xl p-6 shadow-xl border-4 border-teal-400 cursor-pointer flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-teal-400 text-white font-black px-4 py-1 rounded-bl-2xl text-sm">Módulo 2</div>
+                    <div>
+                        <div class="text-5xl mb-3">🍰</div>
+                        <h3 class="text-xl font-black text-purple-700 mb-2">Dividir entre 3</h3>
+                        <p class="text-gray-500 text-sm mb-4">Reparto equitativo y conexión mágica con la multiplicación.</p>
+                    </div>
+                    <div class="bg-teal-100 text-teal-700 font-bold py-2 px-4 rounded-xl text-center group-hover:bg-teal-500 group-hover:text-white transition">
+                        ¡A Repartir! 🍎
+                    </div>
+                </div>
+
+                <!-- Mod 3 -->
+                <div onclick="startModule(3)" class="pulse-btn bg-white rounded-3xl p-6 shadow-xl border-4 border-yellow-400 cursor-pointer flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-yellow-400 text-white font-black px-4 py-1 rounded-bl-2xl text-sm">Módulo 3</div>
+                    <div>
+                        <div class="text-5xl mb-3">🧩</div>
+                        <h3 class="text-xl font-black text-purple-700 mb-2">Completa la Operación</h3>
+                        <p class="text-gray-500 text-sm mb-4">Encuentra el número faltante: 3 x __ = 15 o 18 ÷ 3 = __.</p>
+                    </div>
+                    <div class="bg-yellow-100 text-yellow-800 font-bold py-2 px-4 rounded-xl text-center group-hover:bg-yellow-400 group-hover:text-white transition">
+                        ¡A Resolver! 🕵️‍♂️
+                    </div>
+                </div>
+
+                <!-- Mod 4 -->
+                <div onclick="startModule(4)" class="pulse-btn bg-white rounded-3xl p-6 shadow-xl border-4 border-orange-400 cursor-pointer flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-orange-400 text-white font-black px-4 py-1 rounded-bl-2xl text-sm">Módulo 4</div>
+                    <div>
+                        <div class="text-5xl mb-3">⭐</div>
+                        <h3 class="text-xl font-black text-purple-700 mb-2">Atrapa el Resultado</h3>
+                        <p class="text-gray-500 text-sm mb-4">Mini-juego rápido de selección múltiple con cuenta regresiva divertida.</p>
+                    </div>
+                    <div class="bg-orange-100 text-orange-700 font-bold py-2 px-4 rounded-xl text-center group-hover:bg-orange-500 group-hover:text-white transition">
+                        ¡A Jugar! 🎮
+                    </div>
+                </div>
+
+                <!-- Mod 5 -->
+                <div onclick="startModule(5)" class="pulse-btn bg-white rounded-3xl p-6 shadow-xl border-4 border-indigo-400 cursor-pointer flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-indigo-400 text-white font-black px-4 py-1 rounded-bl-2xl text-sm">Módulo 5</div>
+                    <div>
+                        <div class="text-5xl mb-3">🌳</div>
+                        <h3 class="text-xl font-black text-purple-700 mb-2">Resuelve la Aventura</h3>
+                        <p class="text-gray-500 text-sm mb-4">Problemas matemáticos de la vida real con manzanas, cajas y globos.</p>
+                    </div>
+                    <div class="bg-indigo-100 text-indigo-700 font-bold py-2 px-4 rounded-xl text-center group-hover:bg-indigo-500 group-hover:text-white transition">
+                        ¡Comenzar Reto! 🎒
+                    </div>
+                </div>
+
+                <!-- Mod 6 -->
+                <div onclick="startModule(6)" class="pulse-btn bg-white rounded-3xl p-6 shadow-xl border-4 border-red-400 cursor-pointer flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-red-400 text-white font-black px-4 py-1 rounded-bl-2xl text-sm">Módulo 6</div>
+                    <div>
+                        <div class="text-5xl mb-3">🏆</div>
+                        <h3 class="text-xl font-black text-purple-700 mb-2">Gran Desafío</h3>
+                        <p class="text-gray-500 text-sm mb-4">Examen final combinando todo con medallas y diploma de honor.</p>
+                    </div>
+                    <div class="bg-red-100 text-red-700 font-bold py-2 px-4 rounded-xl text-center group-hover:bg-red-500 group-hover:text-white transition">
+                        ¡Ganar Diploma! 🎓
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: MÓDULO 1 (TABLA DEL 3) -->
+        <div id="screen-mod1" class="screen hidden w-full flex flex-col items-center">
+            <div class="w-full max-w-4xl bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-2xl border-4 border-pink-400">
+                <div class="flex justify-between items-center mb-6">
+                    <button onclick="showScreen('home')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded-2xl border-2 border-gray-300 transition flex items-center space-x-1">
+                        <span>⬅️</span><span>Volver</span>
+                    </button>
+                    <h2 class="text-2xl sm:text-3xl font-black text-purple-700 text-center">🔢 ¡Aprendamos la Tabla del 3!</h2>
+                    <div class="w-20"></div>
+                </div>
+
+                <!-- Interactive Multiplier Card -->
+                <div class="flex flex-col md:flex-row gap-6 items-center bg-pink-50 border-2 border-pink-200 rounded-3xl p-6 shadow-inner mb-6">
+                    <div class="flex-1 text-center md:text-left">
+                        <span id="m1-step-badge" class="bg-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full">Multiplicación 1 de 10</span>
+                        <h3 id="m1-equation" class="text-4xl sm:text-6xl font-black text-purple-800 my-3">3 × 1 = 3</h3>
+                        <p id="m1-sum-text" class="text-lg sm:text-xl font-bold text-gray-600 mb-4">Suma repetida: 3</p>
+                    </div>
+
+                    <!-- Visual Representation Box -->
+                    <div class="flex-1 bg-white rounded-2xl p-4 border-2 border-pink-300 shadow-md w-full flex flex-col items-center justify-center min-h-[220px]">
+                        <p class="text-xs font-bold text-pink-600 uppercase mb-2">Representación Visual (Grupos de 3)</p>
+                        <div id="m1-visual-container" class="flex flex-wrap gap-3 justify-center items-center max-w-xs">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Controls -->
+                <div class="flex justify-between items-center">
+                    <button onclick="m1Prev()" id="m1-prev-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-6 py-3 rounded-2xl shadow transition">
+                        ⬅️ Anterior
+                    </button>
+                    <div class="flex gap-1.5" id="m1-dots">
+                        <!-- Dots injected by JS -->
+                    </div>
+                    <button onclick="m1Next()" id="m1-next-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-3 rounded-2xl shadow transition">
+                        Siguiente ➡️
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: MÓDULO 2 (DIVISIÓN ENTRE 3) -->
+        <div id="screen-mod2" class="screen hidden w-full flex flex-col items-center">
+            <div class="w-full max-w-4xl bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-2xl border-4 border-teal-400">
+                <div class="flex justify-between items-center mb-6">
+                    <button onclick="showScreen('home')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded-2xl border-2 border-gray-300 transition flex items-center space-x-1">
+                        <span>⬅️</span><span>Volver</span>
+                    </button>
+                    <h2 class="text-2xl sm:text-3xl font-black text-purple-700 text-center">🍰 ¡Aprendamos a Dividir entre 3!</h2>
+                    <div class="w-20"></div>
+                </div>
+
+                <!-- Interactive Division Card -->
+                <div class="flex flex-col md:flex-row gap-6 items-center bg-teal-50 border-2 border-teal-200 rounded-3xl p-6 shadow-inner mb-6">
+                    <div class="flex-1 text-center md:text-left">
+                        <span id="m2-step-badge" class="bg-teal-500 text-white text-xs font-bold px-3 py-1 rounded-full">División 1 de 10</span>
+                        <h3 id="m2-equation" class="text-4xl sm:text-6xl font-black text-purple-800 my-3">3 ÷ 3 = 1</h3>
+                        <p id="m2-desc-text" class="text-base sm:text-lg font-bold text-gray-600 mb-4">Repartir equitativamente entre 3 amigos.</p>
+                        
+                        <div class="bg-white/80 border border-teal-300 rounded-2xl p-3 mb-4 shadow-sm">
+                            <p class="text-sm font-extrabold text-teal-800">💡 ¡Familia de Operaciones!</p>
+                            <p id="m2-relation" class="text-sm font-bold text-gray-700">3 × 1 = 3 entonces 3 ÷ 3 = 1</p>
+                        </div>
+                    </div>
+
+                    <!-- Visual Distribution Box -->
+                    <div class="flex-1 bg-white rounded-2xl p-4 border-2 border-teal-300 shadow-md w-full flex flex-col items-center justify-center min-h-[220px]">
+                        <p class="text-xs font-bold text-teal-600 uppercase mb-2">Reparto Equitativo en 3 Personajes</p>
+                        <div id="m2-visual-container" class="flex flex-wrap gap-4 justify-center items-center w-full">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Controls -->
+                <div class="flex justify-between items-center">
+                    <button onclick="m2Prev()" id="m2-prev-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-6 py-3 rounded-2xl shadow transition">
+                        ⬅️ Anterior
+                    </button>
+                    <div class="flex gap-1.5" id="m2-dots"></div>
+                    <button onclick="m2Next()" id="m2-next-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-6 py-3 rounded-2xl shadow transition">
+                        Siguiente ➡️
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 4: MÓDULO 3 (COMPLETA LA OPERACIÓN) -->
+        <div id="screen-mod3" class="screen hidden w-full flex flex-col items-center">
+            <div class="w-full max-w-3xl bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-2xl border-4 border-yellow-400 text-center">
+                <div class="flex justify-between items-center mb-6">
+                    <button onclick="showScreen('home')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded-2xl border-2 border-gray-300 transition flex items-center space-x-1">
+                        <span>⬅️</span><span>Volver</span>
+                    </button>
+                    <h2 class="text-2xl sm:text-3xl font-black text-purple-700">🧩 Completa la Operación</h2>
+                    <span id="m3-score" class="bg-yellow-100 text-yellow-800 font-bold px-4 py-2 rounded-2xl border-2 border-yellow-400">Pregunta 1/8</span>
+                </div>
+
+                <div class="bg-yellow-50 border-2 border-yellow-200 rounded-3xl p-8 mb-6 shadow-inner">
+                    <p class="text-sm font-bold text-yellow-800 mb-2">¡Encuentra el número que falta!</p>
+                    <div id="m3-question-box" class="text-4xl sm:text-6xl font-black text-purple-800 my-4 tracking-wider">
+                        3 × __ = 15
+                    </div>
+                    <div id="m3-feedback" class="text-lg font-bold min-h-[30px] transition-all"></div>
+                </div>
+
+                <!-- Multiple Choice Options -->
+                <div id="m3-options" class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 5: MÓDULO 4 (ATRAPA EL RESULTADO - MINIJUEGO) -->
+        <div id="screen-mod4" class="screen hidden w-full flex flex-col items-center">
+            <div class="w-full max-w-3xl bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-2xl border-4 border-orange-400 text-center">
+                <div class="flex justify-between items-center mb-4">
+                    <button onclick="showScreen('home')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded-2xl border-2 border-gray-300 transition flex items-center space-x-1">
+                        <span>⬅️</span><span>Volver</span>
+                    </button>
+                    <h2 class="text-2xl sm:text-3xl font-black text-purple-700">⭐ Atrapa el Resultado</h2>
+                    <div class="flex items-center space-x-2 bg-orange-100 px-4 py-2 rounded-2xl border-2 border-orange-300 font-black text-orange-700">
+                        <span>Puntos: <span id="m4-points">0</span></span>
+                    </div>
+                </div>
+
+                <div class="bg-orange-50 border-2 border-orange-200 rounded-3xl p-6 mb-6 shadow-inner relative overflow-hidden min-h-[320px] flex flex-col justify-between items-center">
+                    <div class="absolute top-3 left-4 text-xs font-bold text-orange-600 bg-white px-3 py-1 rounded-full border border-orange-300">
+                        Ronda <span id="m4-round">1</span> de 10
+                    </div>
+
+                    <!-- Target Operation -->
+                    <div class="my-auto">
+                        <p class="text-sm font-bold text-gray-500 mb-1">¡Selecciona el resultado correcto!</p>
+                        <div id="m4-target" class="text-5xl sm:text-7xl font-black text-purple-800 tracking-wider mb-2">3 × 4 = ?</div>
+                    </div>
+
+                    <!-- Floating Options Container -->
+                    <div id="m4-bubbles" class="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 6: MÓDULO 5 (RESUELVE LA AVENTURA) -->
+        <div id="screen-mod5" class="screen hidden w-full flex flex-col items-center">
+            <div class="w-full max-w-3xl bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-2xl border-4 border-indigo-400">
+                <div class="flex justify-between items-center mb-6">
+                    <button onclick="showScreen('home')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded-2xl border-2 border-gray-300 transition flex items-center space-x-1">
+                        <span>⬅️</span><span>Volver</span>
+                    </button>
+                    <h2 class="text-2xl sm:text-3xl font-black text-purple-700 text-center">🌳 Resuelve la Aventura</h2>
+                    <span id="m5-progress" class="bg-indigo-100 text-indigo-800 font-bold px-4 py-2 rounded-2xl border-2 border-indigo-300">Reto 1/6</span>
+                </div>
+
+                <div class="bg-indigo-50 border-2 border-indigo-200 rounded-3xl p-6 sm:p-8 mb-6 shadow-inner text-center">
+                    <div id="m5-icon" class="text-6xl mb-4">🍎</div>
+                    <h3 id="m5-title" class="text-xl sm:text-2xl font-black text-purple-800 mb-3">Problema Cotidiano</h3>
+                    <p id="m5-story" class="text-base sm:text-lg font-bold text-gray-700 mb-6 leading-relaxed">
+                        Hay 15 manzanas y queremos repartirlas equitativamente entre 3 niños. ¿Cuántas recibe cada uno?
+                    </p>
+
+                    <!-- Options -->
+                    <div id="m5-options" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 7: MÓDULO 6 (GRAN DESAFÍO MATEMÁTICO) -->
+        <div id="screen-mod6" class="screen hidden w-full flex flex-col items-center">
+            <div class="w-full max-w-3xl bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-2xl border-4 border-red-400 text-center">
+                <div class="flex justify-between items-center mb-6">
+                    <button onclick="showScreen('home')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded-2xl border-2 border-gray-300 transition flex items-center space-x-1">
+                        <span>⬅️</span><span>Salir</span>
+                    </button>
+                    <h2 class="text-2xl sm:text-3xl font-black text-purple-700">🏆 Gran Desafío Matemático</h2>
+                    <span id="m6-counter" class="bg-red-100 text-red-800 font-bold px-4 py-2 rounded-2xl border-2 border-red-300">Pregunta 1/10</span>
+                </div>
+
+                <div class="bg-red-50 border-2 border-red-200 rounded-3xl p-8 mb-6 shadow-inner">
+                    <div id="m6-question" class="text-4xl sm:text-6xl font-black text-purple-800 my-4">3 × 7 = ?</div>
+                    <div id="m6-feedback" class="text-lg font-bold min-h-[30px]"></div>
+                </div>
+
+                <div id="m6-options" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 8: TIENDA DE ACCESORIOS Y MASCOTAS -->
+        <div id="screen-shop" class="screen hidden w-full flex flex-col items-center">
+            <div class="w-full max-w-4xl bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-2xl border-4 border-yellow-400">
+                <div class="flex justify-between items-center mb-6">
+                    <button onclick="showScreen('home')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded-2xl border-2 border-gray-300 transition flex items-center space-x-1">
+                        <span>⬅️</span><span>Volver</span>
+                    </button>
+                    <h2 class="text-2xl sm:text-3xl font-black text-purple-700">🎒 Tienda de Tris el Explorador</h2>
+                    <div class="flex items-center bg-amber-100 border-2 border-amber-400 px-4 py-2 rounded-2xl font-black text-amber-800">
+                        <span>🪙 <span id="shop-coins">0</span></span>
+                    </div>
+                </div>
+
+                <p class="text-gray-600 text-center mb-6 font-bold">¡Usa tus monedas ganadas para desbloquear sombreros, lentes y accesorios geniales!</p>
+
+                <div id="shop-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 9: ESTADÍSTICAS Y PROGRESO -->
+        <div id="screen-stats" class="screen hidden w-full flex flex-col items-center">
+            <div class="w-full max-w-4xl bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-2xl border-4 border-indigo-400">
+                <div class="flex justify-between items-center mb-6">
+                    <button onclick="showScreen('home')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded-2xl border-2 border-gray-300 transition flex items-center space-x-1">
+                        <span>⬅️</span><span>Volver</span>
+                    </button>
+                    <h2 class="text-2xl sm:text-3xl font-black text-purple-700">📊 Tu Panel de Progreso</h2>
+                    <div class="w-20"></div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-yellow-50 border-2 border-yellow-300 rounded-3xl p-6 text-center shadow-inner">
+                        <span class="text-4xl">⭐</span>
+                        <h4 class="text-gray-500 font-bold mt-2">Estrellas Totales</h4>
+                        <p id="stat-stars" class="text-3xl font-black text-yellow-600">0</p>
+                    </div>
+                    <div class="bg-amber-50 border-2 border-amber-300 rounded-3xl p-6 text-center shadow-inner">
+                        <span class="text-4xl">🪙</span>
+                        <h4 class="text-gray-500 font-bold mt-2">Monedas Ganadas</h4>
+                        <p id="stat-coins" class="text-3xl font-black text-amber-600">0</p>
+                    </div>
+                    <div class="bg-purple-50 border-2 border-purple-300 rounded-3xl p-6 text-center shadow-inner">
+                        <span class="text-4xl">🏆</span>
+                        <h4 class="text-gray-500 font-bold mt-2">Medallas Desbloqueadas</h4>
+                        <p id="stat-medals" class="text-3xl font-black text-purple-600">0</p>
+                    </div>
+                </div>
+
+                <h3 class="text-xl font-black text-purple-700 mb-4">🏅 Insignias y Logros de Explorador</h3>
+                <div id="badges-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white/80 backdrop-blur-md py-4 text-center text-sm font-bold text-purple-900 border-t-2 border-purple-200">
+        ✨ La Aventura del Número 3 - Creado con amor para niños de 7 años ✨
+    </footer>
+
+    <!-- MODAL DE VICTORIA / RESULTADO DE DESAFÍO -->
+    <div id="modal-victory" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 animate-fade">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full text-center border-4 border-yellow-400 shadow-2xl relative">
+            <div class="text-6xl mb-3 bouncing">🎉</div>
+            <h3 id="modal-title" class="text-3xl font-black text-purple-700 mb-2">¡Excelente Trabajo!</h3>
+            <p id="modal-desc" class="text-gray-600 font-bold mb-6">¡Has completado la misión con gran éxito!</p>
+            <div id="modal-rewards" class="flex justify-center space-x-4 mb-6">
+                <!-- Rewards injected -->
+            </div>
+            <button onclick="closeModalAndHome()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-black py-3.5 rounded-2xl shadow-lg transition text-lg">
+                ¡Genial, Volver al Menú! 🚀
+            </button>
+        </div>
+    </div>
+
+    <!-- AUDIO & GAME LOGIC SCRIPT -->
+    <script>
+        // --- GAME STATE ---
+        let gameState = {
+            stars: parseInt(localStorage.getItem('av3_stars')) || 0,
+            coins: parseInt(localStorage.getItem('av3_coins')) || 10,
+            medals: parseInt(localStorage.getItem('av3_medals')) || 0,
+            audioEnabled: true,
+            speechEnabled: true,
+            unlockedAccessories: JSON.parse(localStorage.getItem('av3_acc')) || ['base'],
+            activeAccessory: localStorage.getItem('av3_active_acc') || 'base',
+            modulesCompleted: JSON.parse(localStorage.getItem('av3_mods')) || [false, false, false, false, false, false]
+        };
+
+        function saveState() {
+            localStorage.setItem('av3_stars', gameState.stars);
+            localStorage.setItem('av3_coins', gameState.coins);
+            localStorage.setItem('av3_medals', gameState.medals);
+            localStorage.setItem('av3_acc', JSON.stringify(gameState.unlockedAccessories));
+            localStorage.setItem('av3_active_acc', gameState.activeAccessory);
+            localStorage.setItem('av3_mods', JSON.stringify(gameState.modulesCompleted));
+            updateHUD();
+        }
+
+        function updateHUD() {
+            document.getElementById('hud-stars').innerText = gameState.stars;
+            document.getElementById('hud-coins').innerText = gameState.coins;
+            document.getElementById('hud-medals').innerText = gameState.medals;
+            document.getElementById('shop-coins').innerText = gameState.coins;
+            document.getElementById('stat-stars').innerText = gameState.stars;
+            document.getElementById('stat-coins').innerText = gameState.coins;
+            document.getElementById('stat-medals').innerText = gameState.medals;
+        }
+
+        // --- ULTRA-REALISTIC WEB AUDIO API SYNTHESIZER ---
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            if (!gameState.audioEnabled) return;
+            try {
+                initAudio();
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const now = audioCtx.currentTime;
+
+                if (type === 'correct') {
+                    // Ultra-realistic magical success chime with harmonic overtones and reverberation
+                    const frequencies = [523.25, 659.25, 783.99, 1046.50];
+                    frequencies.forEach((freq, idx) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        
+                        osc.type = idx % 2 === 0 ? 'sine' : 'triangle';
+                        osc.frequency.setValueAtTime(freq, now + (idx * 0.08));
+                        
+                        gain.gain.setValueAtTime(0, now + (idx * 0.08));
+                        gain.gain.linearRampToValueAtTime(0.2, now + (idx * 0.08) + 0.02);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.08) + 0.5);
+                        
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        
+                        osc.start(now + (idx * 0.08));
+                        osc.stop(now + (idx * 0.08) + 0.5);
+                    });
+                } else if (type === 'wrong') {
+                    // Gentle, friendly low feedback note (non-punishing)
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.exponentialRampToValueAtTime(160, now + 0.25);
+                    
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                    
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } else if (type === 'coin') {
+                    // Crisp, dual-tone metallic coin ring
+                    [987.77, 1318.51].forEach((freq, idx) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, now + (idx * 0.06));
+                        
+                        gain.gain.setValueAtTime(0.2, now + (idx * 0.06));
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.06) + 0.3);
+                        
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        
+                        osc.start(now + (idx * 0.06));
+                        osc.stop(now + (idx * 0.06) + 0.3);
+                    });
+                } else if (type === 'click') {
+                    // Soft tactile pop sound
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(150, now + 0.04);
+                    
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+                    
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    
+                    osc.start(now);
+                    osc.stop(now + 0.04);
+                } else if (type === 'win') {
+                    // Triumphant fanfare arpeggio
+                    const fanfareNotes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
+                    fanfareNotes.forEach((freq, idx) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, now + (idx * 0.09));
+                        
+                        const duration = idx === fanfareNotes.length - 1 ? 0.8 : 0.2;
+                        gain.gain.setValueAtTime(0.25, now + (idx * 0.09));
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.09) + duration);
+                        
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        
+                        osc.start(now + (idx * 0.09));
+                        osc.stop(now + (idx * 0.09) + duration);
+                    });
+                }
+            } catch (e) {
+                console.error("Audio error", e);
+            }
+        }
+
+        function toggleAudio() {
+            gameState.audioEnabled = !gameState.audioEnabled;
+            document.getElementById('audio-btn').innerText = gameState.audioEnabled ? '🔊' : '🔇';
+            playSound('click');
+        }
+
+        // --- SPEECH SYNTHESIS API ---
+        function speak(text) {
+            if (!gameState.speechEnabled || !('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'es-LA';
+            utterance.rate = 0.9;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function toggleSpeech() {
+            gameState.speechEnabled = !gameState.speechEnabled;
+            document.getElementById('speech-btn').innerText = gameState.speechEnabled ? '🗣️' : '🤫';
+            if (gameState.speechEnabled) speak("Voz activada");
+            playSound('click');
+        }
+
+        // --- NAVIGATION & SCREENS ---
+        function showScreen(screenId) {
+            playSound('click');
+            document.querySelectorAll('.screen').forEach(el => el.classList.add('hidden'));
+            document.getElementById('screen-' + screenId).classList.remove('hidden');
+            window.scrollTo(0, 0);
+
+            if (screenId === 'shop') renderShop();
+            if (screenId === 'stats') renderStats();
+        }
+
+        function startModule(modNum) {
+            playSound('click');
+            if (modNum === 1) initMod1();
+            if (modNum === 2) initMod2();
+            if (modNum === 3) initMod3();
+            if (modNum === 4) initMod4();
+            if (modNum === 5) initMod5();
+            if (modNum === 6) initMod6();
+        }
+
+        // --- MÓDULO 1: LA TABLA DEL 3 ---
+        let m1Index = 0;
+        const m1Data = [
+            { mult: "3 × 1 = 3", sum: "3", items: 1 },
+            { mult: "3 × 2 = 6", sum: "3 + 3", items: 2 },
+            { mult: "3 × 3 = 9", sum: "3 + 3 + 3", items: 3 },
+            { mult: "3 × 4 = 12", sum: "3 + 3 + 3 + 3", items: 4 },
+            { mult: "3 × 5 = 15", sum: "3 + 3 + 3 + 3 + 3", items: 5 },
+            { mult: "3 × 6 = 18", sum: "3 + 3 + 3 + 3 + 3 + 3", items: 6 },
+            { mult: "3 × 7 = 21", sum: "3 + 3 + 3 + 3 + 3 + 3 + 3", items: 7 },
+            { mult: "3 × 8 = 24", sum: "3 + 3 + 3 + 3 + 3 + 3 + 3 + 3", items: 8 },
+            { mult: "3 × 9 = 27", sum: "3 + 3 + 3 + 3 + 3 + 3 + 3 + 3 + 3", items: 9 },
+            { mult: "3 × 10 = 30", sum: "3 + 3 + 3 + 3 + 3 + 3 + 3 + 3 + 3 + 3", items: 10 }
+        ];
+
+        function initMod1() {
+            m1Index = 0;
+            renderMod1();
+            showScreen('mod1');
+        }
+
+        function renderMod1() {
+            const data = m1Data[m1Index];
+            document.getElementById('m1-step-badge').innerText = `Multiplicación ${m1Index + 1} de 10`;
+            document.getElementById('m1-equation').innerText = data.mult;
+            document.getElementById('m1-sum-text').innerText = `Suma repetida: ${data.sum} = ${data.items * 3}`;
+            
+            // Visual container (groups of 3 stars/apples)
+            const container = document.getElementById('m1-visual-container');
+            container.innerHTML = '';
+            for (let g = 0; g < data.items; g++) {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'flex gap-1 bg-pink-100 p-2 rounded-xl border border-pink-300 shadow-sm';
+                for (let i = 0; i < 3; i++) {
+                    const icon = document.createElement('span');
+                    icon.className = 'text-2xl bouncing';
+                    icon.innerText = g % 2 === 0 ? '⭐' : '🍏';
+                    groupDiv.appendChild(icon);
+                }
+                container.appendChild(groupDiv);
+            }
+
+            // Dots
+            const dots = document.getElementById('m1-dots');
+            dots.innerHTML = '';
+            m1Data.forEach((_, idx) => {
+                const dot = document.createElement('div');
+                dot.className = `w-3 h-3 rounded-full ${idx === m1Index ? 'bg-pink-600 scale-125' : 'bg-gray-300'} transition`;
+                dots.appendChild(dot);
+            });
+
+            document.getElementById('m1-prev-btn').disabled = m1Index === 0;
+            document.getElementById('m1-prev-btn').classList.toggle('opacity-50', m1Index === 0);
+        }
+
+        function m1Next() {
+            playSound('click');
+            if (m1Index < m1Data.length - 1) {
+                m1Index++;
+                renderMod1();
+            } else {
+                // Completed Module 1!
+                gameState.stars += 5;
+                gameState.coins += 10;
+                gameState.modulesCompleted[0] = true;
+                saveState();
+                showVictoryModal("¡Módulo 1 Completado!", "¡Has aprendido toda la tabla del 3!", 5, 10);
+            }
+        }
+
+        function m1Prev() {
+            playSound('click');
+            if (m1Index > 0) {
+                m1Index--;
+                renderMod1();
+            }
+        }
+
+        // --- MÓDULO 2: DIVIDIR ENTRE 3 ---
+        let m2Index = 0;
+        const m2Data = [
+            { div: "3 ÷ 3 = 1", total: 3, each: 1, mult: "3 × 1 = 3" },
+            { div: "6 ÷ 3 = 2", total: 6, each: 2, mult: "3 × 2 = 6" },
+            { div: "9 ÷ 3 = 3", total: 9, each: 3, mult: "3 × 3 = 9" },
+            { div: "12 ÷ 3 = 4", total: 12, each: 4, mult: "3 × 4 = 12" },
+            { div: "15 ÷ 3 = 5", total: 15, each: 5, mult: "3 × 5 = 15" },
+            { div: "18 ÷ 3 = 6", total: 18, each: 6, mult: "3 × 6 = 18" },
+            { div: "21 ÷ 3 = 7", total: 21, each: 7, mult: "3 × 7 = 21" },
+            { div: "24 ÷ 3 = 8", total: 24, each: 8, mult: "3 × 8 = 24" },
+            { div: "27 ÷ 3 = 9", total: 27, each: 9, mult: "3 × 9 = 27" },
+            { div: "30 ÷ 3 = 10", total: 30, each: 10, mult: "3 × 10 = 30" }
+        ];
+
+        function initMod2() {
+            m2Index = 0;
+            renderMod2();
+            showScreen('mod2');
+        }
+
+        function renderMod2() {
+            const data = m2Data[m2Index];
+            document.getElementById('m2-step-badge').innerText = `División ${m2Index + 1} de 10`;
+            document.getElementById('m2-equation').innerText = data.div;
+            document.getElementById('m2-desc-text').innerText = `Repartir ${data.total} objetos equitativamente entre 3 amigos.`;
+            document.getElementById('m2-relation').innerText = `${data.mult} entonces ${data.div}`;
+
+            const container = document.getElementById('m2-visual-container');
+            container.innerHTML = '';
+            
+            // 3 Characters
+            const characters = ['🧒🏽 Leo', '👧🏻 Sofía', '👦🏼 Lucas'];
+            characters.forEach((charName) => {
+                const box = document.createElement('div');
+                box.className = 'bg-teal-100 border-2 border-teal-300 rounded-2xl p-3 flex flex-col items-center flex-1 shadow-sm';
+                
+                const title = document.createElement('span');
+                title.className = 'text-xs font-bold text-teal-800 mb-2';
+                title.innerText = charName;
+                box.appendChild(title);
+
+                const itemsDiv = document.createElement('div');
+                itemsDiv.className = 'flex flex-wrap gap-1 justify-center max-w-[120px]';
+                for (let i = 0; i < data.each; i++) {
+                    const item = document.createElement('span');
+                    item.className = 'text-xl bouncing';
+                    item.innerText = '🍰';
+                    itemsDiv.appendChild(item);
+                }
+                box.appendChild(itemsDiv);
+                container.appendChild(box);
+            });
+
+            const dots = document.getElementById('m2-dots');
+            dots.innerHTML = '';
+            m2Data.forEach((_, idx) => {
+                const dot = document.createElement('div');
+                dot.className = `w-3 h-3 rounded-full ${idx === m2Index ? 'bg-teal-600 scale-125' : 'bg-gray-300'} transition`;
+                dots.appendChild(dot);
+            });
+
+            document.getElementById('m2-prev-btn').disabled = m2Index === 0;
+            document.getElementById('m2-prev-btn').classList.toggle('opacity-50', m2Index === 0);
+        }
+
+        function m2Next() {
+            playSound('click');
+            if (m2Index < m2Data.length - 1) {
+                m2Index++;
+                renderMod2();
+            } else {
+                gameState.stars += 5;
+                gameState.coins += 10;
+                gameState.modulesCompleted[1] = true;
+                saveState();
+                showVictoryModal("¡Módulo 2 Completado!", "¡Ya sabes dividir entre 3 como un experto!", 5, 10);
+            }
+        }
+
+        function m2Prev() {
+            playSound('click');
+            if (m2Index > 0) {
+                m2Index--;
+                renderMod2();
+            }
+        }
+
+        // --- MÓDULO 3: COMPLETA LA OPERACIÓN ---
+        let m3Questions = [];
+        let m3Current = 0;
+        let m3CorrectCount = 0;
+
+        function initMod3() {
+            m3Current = 0;
+            m3CorrectCount = 0;
+            m3Questions = [
+                { q: "3 × __ = 15", ans: 5, options: [3, 5, 6, 4] },
+                { q: "3 × __ = 21", ans: 7, options: [6, 7, 8, 9] },
+                { q: "__ × 3 = 27", ans: 9, options: [7, 8, 9, 10] },
+                { q: "18 ÷ 3 = __", ans: 6, options: [5, 6, 7, 8] },
+                { q: "24 ÷ 3 = __", ans: 8, options: [6, 7, 8, 9] },
+                { q: "3 × __ = 12", ans: 4, options: [3, 4, 5, 6] },
+                { q: "30 ÷ 3 = __", ans: 10, options: [9, 10, 8, 7] },
+                { q: "__ × 3 = 18", ans: 6, options: [4, 5, 6, 7] }
+            ];
+            renderMod3();
+            showScreen('mod3');
+        }
+
+        function renderMod3() {
+            if (m3Current >= m3Questions.length) {
+                gameState.stars += 6;
+                gameState.coins += 15;
+                gameState.modulesCompleted[2] = true;
+                saveState();
+                showVictoryModal("¡Módulo 3 Superado!", `¡Completaste todas las operaciones con ${m3CorrectCount} aciertos!`, 6, 15);
+                return;
+            }
+
+            const item = m3Questions[m3Current];
+            document.getElementById('m3-score').innerText = `Pregunta ${m3Current + 1}/${m3Questions.length}`;
+            document.getElementById('m3-question-box').innerText = item.q;
+            document.getElementById('m3-feedback').innerText = '';
+
+            const optionsContainer = document.getElementById('m3-options');
+            optionsContainer.innerHTML = '';
+            
+            // Shuffle options
+            const shuffled = [...item.options].sort(() => Math.random() - 0.5);
+            shuffled.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'pulse-btn bg-white hover:bg-yellow-100 text-purple-700 text-2xl font-black py-4 rounded-2xl shadow-lg border-2 border-yellow-400 transition';
+                btn.innerText = opt;
+                btn.onclick = () => checkM3(opt, item.ans);
+                optionsContainer.appendChild(btn);
+            });
+            speak(item.q.replace('__', 'cuánto'));
+        }
+
+        function checkM3(selected, correct) {
+            const feedback = document.getElementById('m3-feedback');
+            if (selected === correct) {
+                playSound('correct');
+                feedback.innerText = "¡Correcto! 🎉";
+                feedback.className = "text-lg font-bold text-green-600 min-h-[30px]";
+                m3CorrectCount++;
+                setTimeout(() => {
+                    m3Current++;
+                    renderMod3();
+                }, 1000);
+            } else {
+                playSound('wrong');
+                feedback.innerText = "¡Inténtalo de nuevo! Ánimo 💪";
+                feedback.className = "text-lg font-bold text-red-500 min-h-[30px]";
+            }
+        }
+
+        // --- MÓDULO 4: ATRAPA EL RESULTADO ---
+        let m4Round = 1;
+        let m4Points = 0;
+        let m4CurrentData = null;
+
+        function initMod4() {
+            m4Round = 1;
+            m4Points = 0;
+            nextM4Round();
+            showScreen('mod4');
+        }
+
+        function nextM4Round() {
+            if (m4Round > 8) {
+                gameState.stars += 8;
+                gameState.coins += 20;
+                gameState.modulesCompleted[3] = true;
+                saveState();
+                showVictoryModal("¡Minijuego Superado!", `¡Atrapaste todos los resultados con ${m4Points} puntos!`, 8, 20);
+                return;
+            }
+
+            document.getElementById('m4-round').innerText = m4Round;
+            document.getElementById('m4-points').innerText = m4Points;
+
+            // Generate multiplication or division
+            const isMult = Math.random() > 0.4;
+            let qStr, correctAns;
+            if (isMult) {
+                const n = Math.floor(Math.random() * 10) + 1;
+                qStr = `3 × ${n} = ?`;
+                correctAns = 3 * n;
+            } else {
+                const n = Math.floor(Math.random() * 10) + 1;
+                const total = 3 * n;
+                qStr = `${total} ÷ 3 = ?`;
+                correctAns = n;
+            }
+
+            document.getElementById('m4-target').innerText = qStr;
+
+            // Generate options
+            let options = [correctAns];
+            while (options.length < 4) {
+                let wrong = correctAns + (Math.floor(Math.random() * 6) - 3);
+                if (wrong > 0 && !options.includes(wrong)) {
+                    options.push(wrong);
+                }
+            }
+            options.sort(() => Math.random() - 0.5);
+
+            const container = document.getElementById('m4-bubbles');
+            container.innerHTML = '';
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'pulse-btn bg-gradient-to-br from-orange-400 to-amber-500 hover:from-orange-500 hover:to-amber-600 text-white text-3xl font-black py-6 rounded-3xl shadow-lg border-2 border-orange-300 transition bouncing';
+                btn.innerText = opt;
+                btn.onclick = () => checkM4(opt, correctAns);
+                container.appendChild(btn);
+            });
+            speak(qStr.replace('?', 'cuánto es'));
+        }
+
+        function checkM4(selected, correct) {
+            if (selected === correct) {
+                playSound('correct');
+                playSound('coin');
+                m4Points += 10;
+                m4Round++;
+                setTimeout(nextM4Round, 500);
+            } else {
+                playSound('wrong');
+                m4Points = Math.max(0, m4Points - 3);
+                document.getElementById('m4-points').innerText = m4Points;
+            }
+        }
+
+        // --- MÓDULO 5: RESUELVE LA AVENTURA ---
+        let m5Index = 0;
+        const m5Data = [
+            {
+                icon: "🍎",
+                title: "Reparto de Manzanas",
+                story: "Hay 15 manzanas y queremos repartirlas equitativamente entre 3 niños. ¿Cuántas recibe cada uno?",
+                ans: 5,
+                options: [3, 4, 5, 6]
+            },
+            {
+                icon: "📦",
+                title: "Cajas de Juguetes",
+                story: "Tenemos 3 cajas y en cada caja hay 4 juguetes. ¿Cuántos juguetes hay en total?",
+                ans: 12,
+                options: [9, 12, 15, 10]
+            },
+            {
+                icon: "🎈",
+                title: "Globos de Fiesta",
+                story: "Hay 21 globos y se reparten entre 3 amigos por igual. ¿Cuántos globos recibe cada amigo?",
+                ans: 7,
+                options: [6, 7, 8, 9]
+            },
+            {
+                icon: "🍪",
+                title: "Galletas Calientes",
+                story: "Si horneamos 3 bandejas y cada bandeja tiene 8 galletas. ¿Cuántas galletas tenemos en total?",
+                ans: 24,
+                options: [21, 24, 27, 18]
+            }
+        ];
+
+        function initMod5() {
+            m5Index = 0;
+            renderMod5();
+            showScreen('mod5');
+        }
+
+        function renderMod5() {
+            if (m5Index >= m5Data.length) {
+                gameState.stars += 7;
+                gameState.coins += 15;
+                gameState.modulesCompleted[4] = true;
+                saveState();
+                showVictoryModal("¡Aventura Completada!", "¡Resolviste todos los problemas cotidianos con éxito!", 7, 15);
+                return;
+            }
+
+            const item = m5Data[m5Index];
+            document.getElementById('m5-progress').innerText = `Reto ${m5Index + 1}/${m5Data.length}`;
+            document.getElementById('m5-icon').innerText = item.icon;
+            document.getElementById('m5-title').innerText = item.title;
+            document.getElementById('m5-story').innerText = item.story;
+
+            const container = document.getElementById('m5-options');
+            container.innerHTML = '';
+            
+            const shuffled = [...item.options].sort(() => Math.random() - 0.5);
+            shuffled.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'pulse-btn bg-white hover:bg-indigo-100 text-purple-700 text-2xl font-black py-4 rounded-2xl shadow-lg border-2 border-indigo-300 transition';
+                btn.innerText = opt;
+                btn.onclick = () => checkM5(opt, item.ans);
+                container.appendChild(btn);
+            });
+            speak(item.story);
+        }
+
+        function checkM5(selected, correct) {
+            if (selected === correct) {
+                playSound('correct');
+                m5Index++;
+                setTimeout(renderMod5, 600);
+            } else {
+                playSound('wrong');
+            }
+        }
+
+        // --- MÓDULO 6: GRAN DESAFÍO MATEMÁTICO ---
+        let m6Questions = [];
+        let m6Current = 0;
+        let m6Correct = 0;
+
+        function initMod6() {
+            m6Current = 0;
+            m6Correct = 0;
+            // Generate 10 random questions
+            m6Questions = [];
+            for (let i = 0; i < 10; i++) {
+                const isDiv = Math.random() > 0.5;
+                if (isDiv) {
+                    const n = Math.floor(Math.random() * 10) + 1;
+                    const total = 3 * n;
+                    m6Questions.push({ q: `${total} ÷ 3 = ?`, ans: n });
+                } else {
+                    const n = Math.floor(Math.random() * 10) + 1;
+                    m6Questions.push({ q: `3 × ${n} = ?`, ans: 3 * n });
+                }
+            }
+            renderMod6();
+            showScreen('mod6');
+        }
+
+        function renderMod6() {
+            if (m6Current >= m6Questions.length) {
+                const scorePercent = (m6Correct / 10) * 100;
+                let rewardStars = m6Correct;
+                let rewardCoins = m6Correct * 3;
+                gameState.stars += rewardStars;
+                gameState.coins += rewardCoins;
+                if (m6Correct >= 8) gameState.medals += 1;
+                gameState.modulesCompleted[5] = true;
+                saveState();
+                showVictoryModal("¡Gran Desafío Finalizado!", `¡Obtuviste ${m6Correct} de 10 aciertos (${scorePercent}%)!`, rewardStars, rewardCoins);
+                return;
+            }
+
+            const item = m6Questions[m6Current];
+            document.getElementById('m6-counter').innerText = `Pregunta ${m6Current + 1}/10`;
+            document.getElementById('m6-question').innerText = item.q;
+            document.getElementById('m6-feedback').innerText = '';
+
+            let options = [item.ans];
+            while (options.length < 4) {
+                let wrong = item.ans + (Math.floor(Math.random() * 6) - 3);
+                if (wrong >= 0 && !options.includes(wrong)) {
+                    options.push(wrong);
+                }
+            }
+            options.sort(() => Math.random() - 0.5);
+
+            const container = document.getElementById('m6-options');
+            container.innerHTML = '';
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'pulse-btn bg-white hover:bg-red-100 text-purple-700 text-2xl font-black py-4 rounded-2xl shadow-lg border-2 border-red-300 transition';
+                btn.innerText = opt;
+                btn.onclick = () => checkM6(opt, item.ans);
+                container.appendChild(btn);
+            });
+            speak(item.q.replace('?', 'cuánto es'));
+        }
+
+        function checkM6(selected, correct) {
+            const feedback = document.getElementById('m6-feedback');
+            if (selected === correct) {
+                playSound('correct');
+                feedback.innerText = "¡Excelente! 🌟";
+                feedback.className = "text-lg font-bold text-green-600 min-h-[30px]";
+                m6Correct++;
+                setTimeout(() => {
+                    m6Current++;
+                    renderMod6();
+                }, 800);
+            } else {
+                playSound('wrong');
+                feedback.innerText = "¡Casi! Sigue adelante 💪";
+                feedback.className = "text-lg font-bold text-red-500 min-h-[30px]";
+                setTimeout(() => {
+                    m6Current++;
+                    renderMod6();
+                }, 1000);
+            }
+        }
+
+        // --- TIENDA DE ACCESORIOS ---
+        const shopItems = [
+            { id: 'base', name: 'Leoncito Tris', cost: 0, icon: '🦁' },
+            { id: 'cap', name: 'Gorra de Explorador', cost: 20, icon: '🧢' },
+            { id: 'crown', name: 'Corona del Saber', cost: 50, icon: '👑' },
+            { id: 'glasses', name: 'Lentes Geniales', cost: 35, icon: '🕶️' }
+        ];
+
+        function renderShop() {
+            const container = document.getElementById('shop-grid');
+            container.innerHTML = '';
+            shopItems.forEach(item => {
+                const isUnlocked = gameState.unlockedAccessories.includes(item.id);
+                const isActive = gameState.activeAccessory === item.id;
+
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-3xl p-6 shadow-lg border-4 ${isActive ? 'border-purple-600 ring-4 ring-purple-200' : 'border-yellow-300'} flex flex-col items-center text-center justify-between`;
+                
+                card.innerHTML = `
+                    <div class="text-6xl mb-3 bouncing">${item.icon}</div>
+                    <h4 class="text-lg font-black text-purple-800 mb-1">${item.name}</h4>
+                    <p class="text-sm font-bold text-gray-500 mb-4">${item.cost === 0 ? '¡Gratis!' : item.cost + ' 🪙'}</p>
+                `;
+
+                const btn = document.createElement('button');
+                btn.className = `w-full py-2.5 rounded-2xl font-bold transition shadow ${
+                    isActive ? 'bg-purple-600 text-white' :
+                    isUnlocked ? 'bg-teal-500 hover:bg-teal-600 text-white' :
+                    'bg-yellow-400 hover:bg-yellow-500 text-yellow-900'
+                }`;
+                btn.innerText = isActive ? 'Equipado ✨' : isUnlocked ? 'Equipar' : 'Comprar 🪙';
+                btn.onclick = () => handleShopAction(item);
+
+                card.appendChild(btn);
+                container.appendChild(card);
+            });
+        }
+
+        function handleShopAction(item) {
+            playSound('click');
+            if (gameState.unlockedAccessories.includes(item.id)) {
+                gameState.activeAccessory = item.id;
+                saveState();
+                renderShop();
+            } else if (gameState.coins >= item.cost) {
+                gameState.coins -= item.cost;
+                gameState.unlockedAccessories.push(item.id);
+                gameState.activeAccessory = item.id;
+                saveState();
+                renderShop();
+                playSound('coin');
+            } else {
+                playSound('wrong');
+                alert("¡Te faltan monedas! Sigue jugando para ganar más 🪙");
+            }
+        }
+
+        // --- ESTADÍSTICAS Y LOGROS ---
+        function renderStats() {
+            const container = document.getElementById('badges-grid');
+            container.innerHTML = '';
+            
+            const badges = [
+                { title: 'Explorador del 3', desc: 'Completa Módulo 1', unlocked: gameState.modulesCompleted[0], icon: '🌟' },
+                { title: 'Experto en Divisiones', desc: 'Completa Módulo 2', unlocked: gameState.modulesCompleted[1], icon: '🍰' },
+                { title: 'Detective Matemático', desc: 'Completa Módulo 3', unlocked: gameState.modulesCompleted[2], icon: '🕵️‍♂️' },
+                { title: 'Cazador Rápido', desc: 'Completa Módulo 4', unlocked: gameState.modulesCompleted[3], icon: '⚡' },
+                { title: 'Solucionador', desc: 'Completa Módulo 5', unlocked: gameState.modulesCompleted[4], icon: '🌳' },
+                { title: 'Campeón Supremo', desc: 'Completa Gran Desafío', unlocked: gameState.modulesCompleted[5], icon: '🏆' }
+            ];
+
+            badges.forEach(b => {
+                const badgeDiv = document.createElement('div');
+                badgeDiv.className = `rounded-3xl p-4 border-2 flex flex-col items-center text-center ${b.unlocked ? 'bg-purple-50 border-purple-400 shadow-md' : 'bg-gray-100 border-gray-300 opacity-60'}`;
+                badgeDiv.innerHTML = `
+                    <div class="text-4xl mb-2">${b.icon}</div>
+                    <h4 class="font-black text-purple-800 text-sm mb-1">${b.title}</h4>
+                    <p class="text-xs text-gray-500 font-bold">${b.desc}</p>
+                    <span class="mt-2 text-xs font-black px-2 py-0.5 rounded-full ${b.unlocked ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-500'}">
+                        ${b.unlocked ? '¡Desbloqueado! ✔️' : 'Bloqueado 🔒'}
+                    </span>
+                `;
+                container.appendChild(badgeDiv);
+            });
+        }
+
+        // --- VICTORIA MODAL ---
+        function showVictoryModal(title, desc, stars, coins) {
+            playSound('win');
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-desc').innerText = desc;
+            
+            const rewardsContainer = document.getElementById('modal-rewards');
+            rewardsContainer.innerHTML = `
+                <div class="flex items-center bg-yellow-100 border-2 border-yellow-400 px-4 py-2 rounded-2xl font-black text-yellow-800">
+                    <span class="text-2xl mr-2">⭐</span> +${stars}
+                </div>
+                <div class="flex items-center bg-amber-100 border-2 border-amber-400 px-4 py-2 rounded-2xl font-black text-amber-800">
+                    <span class="text-2xl mr-2">🪙</span> +${coins}
+                </div>
+            `;
+            document.getElementById('modal-victory').classList.remove('hidden');
+        }
+
+        function closeModalAndHome() {
+            playSound('click');
+            document.getElementById('modal-victory').classList.add('hidden');
+            showScreen('home');
+        }
+
+        // Initial setup
+        window.onload = () => {
+            updateHUD();
+        };
+    </script>
+</body>
+</html>
